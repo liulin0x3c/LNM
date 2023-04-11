@@ -5,6 +5,7 @@ import org.jgrapht.Graphs;
 import org.jgrapht.alg.scoring.EdgeBetweennessCentrality;
 import org.jgrapht.graph.*;
 import org.liulin.helper.DoubleHolder;
+import org.liulin.helper.WeightedIndependentCascadeModel;
 
 import java.io.File;
 import java.io.IOException;
@@ -225,6 +226,7 @@ public class Main {
         int times = (int) (0.2 * edgeSet.size());
         DefaultWeightedEdge[] delEdges = new DefaultWeightedEdge[times];
         for (int k = 0; k < delEdges.length; k++) {
+            System.out.print(k + "/" + delEdges.length + "\r");
             Map<DefaultWeightedEdge, double[]> N = new HashMap<>(edgeSet.size());
             {
                 var sums = new double[3];
@@ -295,7 +297,7 @@ public class Main {
                 infCache.get(i).setValue(calculateIff(graph, i));
                 infCache.get(j).setValue(calculateIff(graph, j));
 
-                Set<DefaultWeightedEdge> edges = graph.incomingEdgesOf(i);
+                Set<DefaultWeightedEdge> edges = new HashSet<>(graph.incomingEdgesOf(i));
                 edges.addAll(graph.incomingEdgesOf(j));
                 for (var e : edges) {
                     effCache.get(e).setValue(calculateEff(graph, e));
@@ -306,7 +308,7 @@ public class Main {
     }
 
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws InterruptedException {
 
 
         var graph = creatGraph(loadData2E());
@@ -320,17 +322,31 @@ public class Main {
 //        }
 //        log(String.join("\n", weights), "WEIGHTS");
 
+//        {
+//            var edges = runRNDM(graph);
+//            recordData(edges, "RNDM");
+//        }
+//        {
+//            var edges = runHWGT(graph);
+//            recordData(edges, "HWGT");
+//        }
+//        {
+//            var edges = runBTWN(graph);
+//            recordData(edges, "BTWN");
+//        }
+//
+//        {
+//            var edges = runWBET(graph);
+//            recordData(edges, "WBET");
+//        }
         {
-            var edges = runRNDM(graph);
-            recordData(edges, "RNDM");
+            var edges = runIEED(graph);
+            recordData(edges, "IEED");
         }
-        {
-            var edges = runHWGT(graph);
-            recordData(edges, "HWGT");
-        }
-        {
-            var edges = runBTWN(graph);
-            recordData(edges, "BTWN");
+
+        System.out.println(WeightedIndependentCascadeModel.expectedValue(graph));
+        for (int i = 0; i < 20; i++) {
+
         }
 
     }
