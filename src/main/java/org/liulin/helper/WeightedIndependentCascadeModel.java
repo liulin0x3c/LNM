@@ -12,12 +12,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class WeightedIndependentCascadeModel {
-//RND
-//3536.2518
-//3166.55724
-//IEED
-//3334.45543
-//1744.91235
 
     static class Nedata {
         int n;
@@ -30,11 +24,10 @@ public class WeightedIndependentCascadeModel {
     }
 
 
-    public static double expectedValue(SimpleWeightedGraph<Integer, DefaultWeightedEdge> graph) throws InterruptedException {
-        int[] ints = initIS(graph, 20).stream().mapToInt(Integer::intValue).toArray();
+    public static double expectedValue(SimpleWeightedGraph<Integer, DefaultWeightedEdge> graph, int[] ints) throws InterruptedException {
         int vNum = graph.vertexSet().size();
-        Nedata[][] cache = new Nedata[vNum][];
-        for (int i = 0; i < cache.length; i++) {
+        Nedata[][] adjacencyList = new Nedata[vNum][];
+        for (int i = 0; i < adjacencyList.length; i++) {
             Set<DefaultWeightedEdge> edgesSet = graph.edgesOf(i);
             var edges = new Nedata[edgesSet.size()];
             int idx = -1;
@@ -43,9 +36,9 @@ public class WeightedIndependentCascadeModel {
                 double w = graph.getEdgeWeight(e);
                 edges[++idx] = new Nedata(neighbor, w);
             }
-            cache[i] = edges;
+            adjacencyList[i] = edges;
         }
-        int numSimulations = 100000;// 模拟次数
+        int numSimulations = 10_0000;// 模拟次数
         CountDownLatch countDownLatch = new CountDownLatch(numSimulations);
         Object lock = new Object();
         int nThreads = 16;
@@ -75,7 +68,7 @@ public class WeightedIndependentCascadeModel {
                     }
                     while (tos != -1) {
                         int cur = s[tos--];
-                        Nedata[] nedatas = cache[cur];
+                        Nedata[] nedatas = adjacencyList[cur];
                         for (Nedata nedata : nedatas) {
                             double w = nedata.w;
                             int n = nedata.n;

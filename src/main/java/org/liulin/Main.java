@@ -14,6 +14,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
+import java.text.DecimalFormat;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.locks.ReadWriteLock;
@@ -21,11 +22,12 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.stream.Collectors;
 
 import static org.liulin.helper.Helper.*;
+import static org.liulin.helper.WeightedIndependentCascadeModel.initIS;
 
 public class Main {
 
-    public static int[][] loadData2E() {
-        return loadEdges("my");
+    public static int[][] loadData2E(String fileName) {
+        return loadEdges(fileName);
 //        Path path = Paths.get("data\\my.txt");
 //        String data;
 //        try {
@@ -61,9 +63,9 @@ public class Main {
         var E = new int[edgeNum][3];
         for (int i = 0; i < lines.length; i++) {
             String line = lines[i];
-            String[] blocks = line.split(" ");
+            String[] blocks = line.strip().split("[ \t]");
             int fromId = Integer.parseInt(blocks[0]);
-            int toId = Integer.parseInt(blocks[1].strip());
+            int toId = Integer.parseInt(blocks[1]);
             E[i] = new int[]{fromId, toId};
         }
         return E;
@@ -95,8 +97,8 @@ public class Main {
 
 
         // 输出图的信息
-        System.out.println("Nodes: " + graph.vertexSet().size());
-        System.out.println("Edges: " + graph.edgeSet().size());
+//        System.out.println("Nodes: " + graph.vertexSet().size());
+//        System.out.println("Edges: " + graph.edgeSet().size());
 
         return graph;
     }
@@ -191,7 +193,7 @@ public class Main {
         for (var e : edges) {
             String string = e.toString();
             String[] split = string.substring(1, string.length() - 1).split(" : ");
-            String joined = String.join(" ", split);
+            String joined = String.join("\t", split);
             strings[++idx] = joined;
         }
         log(String.join("\n", strings), fileName);
@@ -234,7 +236,7 @@ public class Main {
             mult *= 1 - wil * wlj;
         }
         var wij = graph.getEdgeWeight(graph.getEdge(i, j));
-        return wij - mult;
+        return mult * wij;
     }
 
     public static DefaultWeightedEdge[] runIEED(SimpleWeightedGraph<Integer, DefaultWeightedEdge> graph) {
@@ -269,16 +271,14 @@ public class Main {
         int edgeNum = edgeSet.size();
         DefaultWeightedEdge[] delEdges = new DefaultWeightedEdge[times];
         for (int k = 0; k < delEdges.length; k++) {
-            System.out.print(k + "/" + delEdges.length + "\r");
-
+            if (k % 100 == 0) {
+                System.out.print(k + "/" + delEdges.length + "\r");
+            }
             double[][] A = new double[3][edgeNum];
             for (int i = 0; i < A[0].length; i++) {
                 var e = E[i];
                 DoubleHolder[] doubleHolders = AMap.get(e);
                 for (int j = 0; j < A.length; j++) {
-                    if (doubleHolders == null) {
-                        System.out.println(11);
-                    }
                     A[j][i] = doubleHolders[j].getValue();
                 }
             }
@@ -316,116 +316,20 @@ public class Main {
         return delEdges;
     }
 
-//    public static DefaultWeightedEdge[] runTEST(SimpleWeightedGraph<Integer, DefaultWeightedEdge> graph) {
-//        var edgeSet = graph.edgeSet();
-//        var E = new DefaultWeightedEdge[edgeSet.size()];
-//        {
-//            int idx = -1;
-//            for (var e : edgeSet) {
-//                E[++idx] = e;
-//            }
-//        }
-//
-//        int times = (int) (0.2 * edgeSet.size());
-//        int edgeNum = edgeSet.size();
-//        double[][] A = new double[1][edgeNum];
-//        DefaultWeightedEdge[] delEdges = new DefaultWeightedEdge[times];
-//        for (int k = 0; k < delEdges.length; k++) {
-//            System.out.print(k + "/" + delEdges.length + "\r");
-//            for (int i = 0; i < A[0].length; i++) {
-//                A[0][i] = calculateEff(graph, E[i]);
-//            }
-//
-//            var crit = calculateCrit(A);
-//            int maxIdx = 0;
-//            for (int i = 1; i < crit.length; i++) {
-//                if (crit[i] > crit[maxIdx]) {
-//                    maxIdx = i;
-//                }
-//            }
-//
-//            var maxEdge = E[maxIdx];
-//
-//            var i = graph.getEdgeSource(maxEdge);
-//            var j = graph.getEdgeTarget(maxEdge);
-////                del
-//            graph.removeEdge(maxEdge);
-//            delEdges[k] = maxEdge;
-//            E[maxIdx] = E[--edgeNum];
-////                update
-//            Set<DefaultWeightedEdge> edges = new HashSet<>(graph.outgoingEdgesOf(i));
-//            edges.addAll(graph.incomingEdgesOf(j));
-//
-//            for (int l = 0; l < A[0].length; l++) {
-//                if (edges.contains(E[l])) {
-//                    A[0][l] = calculateEff(graph, E[l]);
-//                }
-//            }
-//
-//
-//        }
-//        return delEdges;
-//    }
-
     public static void main(String[] args) throws InterruptedException {
-
-        var graph = creatGraph(loadData2E());
-
-//        Random random = new Random();
-//        int size = graph.edgeSet().size();
-//        var weights = new String[size];
-//        for (int i = 0; i < size; i++) {
-//            double weight = random.nextDouble(0, 1);
-//            weights[i] = String.valueOf(weight);
-//        }
-//        log(String.join("\n", weights), "WEIGHTS");
-
-//        {
-//            var edges = runRNDM(graph);
-//            recordData(edges, "RNDM");
-//        }
-//        {
-//            var edges = runHWGT(graph);
-//            recordData(edges, "HWGT");
-//        }
-//        {
-//            var edges = runBTWN(graph);
-//            recordData(edges, "BTWN");
-//        }
 //
 //        {
-//            var edges = runWBET(graph);
-//            recordData(edges, "WBET");
-//        }
-//        {
+//            var graph = creatGraph(loadData2E("EW"));
 //            var edges = runIEED(graph);
 //            recordData(edges, "IEED");
 //        }
-//        {
-//            var edges = runTEST(graph);
-//            recordData(edges, "TEST");
-//        }
+        var graph = creatGraph(loadData2E("EW"));
+        int[] ints = initIS(graph, 20).stream().mapToInt(Integer::intValue).toArray();
 
-        double base = WeightedIndependentCascadeModel.expectedValue(graph);
+        double base = WeightedIndependentCascadeModel.expectedValue(graph, ints);
 
-//        {
-//            int[][] E = loadEdges("BTWN");
-//            double slice = E.length / 20.0;
-//            for (int i = 1; i <= 20; i++) {
-//                int start = (int) (slice * (i - 1));
-//                int end = (int) (slice * i);
-//                for (int idx = start; idx < end; idx++) {
-//                    DefaultWeightedEdge e = graph.getEdge(E[idx][0], E[idx][1]);
-//                    graph.removeEdge(e);
-//                }
-//            }
-//
-//            double cur = WeightedIndependentCascadeModel.expectedValue(graph);
-//            double number = (base - cur) / base;
-//            System.out.println(number);
-//        }
-
-        int[][] E = loadEdges("IEED");
+        var df = new DecimalFormat("0.00%");
+        int[][] E = loadEdges("MYY");
         double slice = E.length / 20.0;
         for (int i = 1; i <= 20; i++) {
             int start = (int) (slice * (i - 1));
@@ -435,10 +339,31 @@ public class Main {
                 graph.removeEdge(e);
             }
         }
-
-        double cur = WeightedIndependentCascadeModel.expectedValue(graph);
+        double cur = WeightedIndependentCascadeModel.expectedValue(graph, ints);
         double number = (base - cur) / base;
-        System.out.println(number);
+        System.out.println(df.format(number));
 
+    }
+
+    public static void fun(String fileName) throws InterruptedException {
+        var graph = creatGraph(loadData2E("EW"));
+        int[] ints = initIS(graph, 20).stream().mapToInt(Integer::intValue).toArray();
+
+        double base = WeightedIndependentCascadeModel.expectedValue(graph, ints);
+
+        var df = new DecimalFormat("0.00%");
+        int[][] E = loadEdges(fileName);
+        double slice = E.length / 20.0;
+        for (int i = 1; i <= 20; i++) {
+            int start = (int) (slice * (i - 1));
+            int end = (int) (slice * i);
+            for (int idx = start; idx < end; idx++) {
+                DefaultWeightedEdge e = graph.getEdge(E[idx][0], E[idx][1]);
+                graph.removeEdge(e);
+            }
+        }
+        double cur = WeightedIndependentCascadeModel.expectedValue(graph, ints);
+        double number = (base - cur) / base;
+        System.out.println(df.format(number));
     }
 }

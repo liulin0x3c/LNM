@@ -1,47 +1,39 @@
 package org.liulin.helper;
 
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
 public class Helper {
-    public static double[][] normalize(double[][] params) {
+
+
+    private static final int nThreads = 32;
+    private static final ExecutorService es = Executors.newFixedThreadPool(nThreads);
+
+    private static double[][] normalize(double[][] params) {
 //        params[k][n] k:params num; n param len
-        for (double[] param : params) {
+        double[][] normalized = new double[params.length][params[0].length];
+        for (int j = 0; j < params.length; j++) {
+            double[] param = params[j];
             double sum = 0;
             for (double data : param) {
                 sum += data;
             }
             for (int i = 0; i < param.length; i++) {
-                param[i] = param[i] / sum;
+                normalized[j][i] = param[i] / sum;
             }
         }
-
-        return params;
-
+        return normalized;
     }
 
-    // 转置矩阵
-    public static double[][] transposeMatrix(double[][] matrix) {
-        int rows = matrix.length;
-        int columns = matrix[0].length;
-
-        double[][] transposedMatrix = new double[columns][rows];
-
-        for (int i = 0; i < rows; i++) {
-            for (int j = 0; j < columns; j++) {
-                transposedMatrix[j][i] = matrix[i][j];
-            }
-        }
-        return transposedMatrix;
-    }
-
-
-    public static double[] calculateH(double[][] params) {
+    private static double[] calculateH(double[][] params) {
         var H = new double[params.length];
         var n = params[0].length;
         var logn = Math.log(n);
         for (int i = 0; i < params.length; i++) {
             var param = params[i];
             var sum = 0.0D;
-            for (int j = 0; j < param.length; j++) {
-                double Nij = param[j];
+            for (double Nij : param) {
                 if (Nij == 0) continue;
                 sum += Nij * Math.log(Nij);
             }
@@ -50,7 +42,7 @@ public class Helper {
         return H;
     }
 
-    public static double[] calculateAlpha(double[] H) {
+    private static double[] calculateAlpha(double[] H) {
         var alpha = new double[H.length];
         double sum = 0.0;
         for (double v : H) {
@@ -62,6 +54,7 @@ public class Helper {
         return alpha;
     }
 
+
     public static double[] calculateCrit(double[][] params) {
         double[][] normalized = normalize(params);
         double[] H = calculateH(normalized);
@@ -69,10 +62,11 @@ public class Helper {
         var crit = new double[params[0].length];
         for (int i = 0; i < crit.length; i++) {
             for (int j = 0; j < alpha.length; j++) {
-                crit[i] += normalized[j][i];
+                crit[i] += alpha[j] * normalized[j][i];
             }
         }
         return crit;
     }
+
 
 }
