@@ -31,6 +31,13 @@ public class IcCache implements Cache {
     }
 
     private void calculate(int v) {
+//        double sum = 0;
+//        for (var n1 : g.getNeighbors(v)) {
+//            for (int n2 : g.getNeighbors(n1)) {
+//                sum += g.weights[n1][n2] * g.weights[n1][v] * localClusteringCoefficientCache.get(n2);
+//            }
+//        }
+
         var n2Set = getNeighborsOfNeighbours(v);
         double sum = 0;
         for (var i : n2Set) {

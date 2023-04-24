@@ -1,14 +1,6 @@
 package org.liulin.helper;
 
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-
 public class Helper {
-
-
-    private static final int nThreads = 32;
-    private static final ExecutorService es = Executors.newFixedThreadPool(nThreads);
 
     private static double[][] normalize(double[][] params) {
 //        params[k][n] k:params num; n param len
@@ -56,14 +48,16 @@ public class Helper {
 
 
     public static double[] calculateCrit(double[][] params) {
-        double[][] normalized = normalize(params);
+//        double[][] normalized = normalize(params);
+        double[][] normalized = params;
         double[] H = calculateH(normalized);
         double[] alpha = calculateAlpha(H);
         var crit = new double[params[0].length];
         for (int i = 0; i < crit.length; i++) {
-            for (int j = 0; j < alpha.length; j++) {
-                crit[i] += alpha[j] * normalized[j][i];
-            }
+//            for (int j = 0; j < alpha.length; j++) {
+//                crit[i] += alpha[j] * normalized[j][i];
+//            }
+            crit[i] += Math.exp(normalized[0][i]);
         }
         return crit;
     }

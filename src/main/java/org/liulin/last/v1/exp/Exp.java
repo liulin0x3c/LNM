@@ -1,0 +1,147 @@
+package org.liulin.last.v1.exp;
+
+import org.liulin.last.v1.Edge;
+import org.liulin.last.v1.io.IO;
+import org.liulin.last.v1.main.G;
+
+import java.io.File;
+import java.text.DecimalFormat;
+import java.util.*;
+import java.util.concurrent.*;
+import java.util.stream.IntStream;
+
+public class Exp {
+    private final int[][] adjacency;
+    private final double[][] w;
+    private int[] ints;
+
+    private int[] neighbors(int v) {
+        return adjacency[v];
+    }
+
+    private double weight(int i, int j) {
+        return w[i][j];
+    }
+
+    public Exp(G g, int percent) {
+        this.adjacency = g.adjacencyList;
+        this.w = g.weights;
+        initIS(percent);
+    }
+
+
+    public double expectedValue() {
+        try {
+            int vNum = adjacency.length;
+            int numSimulations = 10_0000;// 模拟次数
+            CountDownLatch countDownLatch = new CountDownLatch(numSimulations);
+            Object lock = new Object();
+            int nThreads = 15;
+            long[] sum = new long[nThreads];
+            ExecutorService es = Executors.newFixedThreadPool(nThreads);
+            for (int i = 0; i < nThreads; i++) {
+                int finalI = i;
+                es.execute(() -> {
+                    var random = ThreadLocalRandom.current();
+                    BitSet act = new BitSet(vNum);
+                    int[] s = new int[vNum];
+                    int tos;
+                    while (true) {
+                        synchronized (lock) {
+                            if (countDownLatch.getCount() == 0) break;
+                            countDownLatch.countDown();
+                        }
+
+                        act.clear();
+                        for (var idx : ints) {
+                            act.set(idx, true);
+                        }
+
+                        tos = -1;
+                        for (int initNode : ints) {
+                            s[++tos] = initNode;
+                        }
+                        while (tos != -1) {
+                            int cur = s[tos--];
+                            int[] neighbors = neighbors(cur);
+                            for (var n : neighbors) {
+                                double w = weight(cur, n);
+                                if (!act.get(n) && random.nextDouble() < w) {
+                                    act.set(n, true);
+                                    s[++tos] = n;
+                                }
+                            }
+                        }
+                        sum[finalI] += act.cardinality();
+                    }
+                });
+            }
+            countDownLatch.await();
+            es.shutdown();
+            // 计算期望值
+            long totalActivatedNodes = 0; // 总共激活的节点数
+            for (var i : sum) {
+                totalActivatedNodes += i;
+            }
+            return totalActivatedNodes / (numSimulations * 1.0);
+        } catch (InterruptedException e) {
+            System.out.println("ERR");
+        }
+        return -1;
+    }
+
+    public void initIS(int percent) {
+        // 随机生成初始节点
+        int vNum = adjacency.length;
+        Set<Integer> seedNodes = new HashSet<>();
+        int numSeedNodes = (int) (vNum / 100.0 * percent); // 计算初始节点数量
+        Random random = new Random();
+        while (seedNodes.size() < numSeedNodes) {
+            int randomIndex = random.nextInt(vNum);
+            seedNodes.add(randomIndex);
+        }
+        this.ints = seedNodes.stream().mapToInt(Integer::intValue).toArray();
+    }
+
+    public void delEdge(Edge e) {
+        int i = e.sour;
+        int j = e.dest;
+        w[i][j] = w[j][i] = 0;
+        adjacency[i] = IntStream.range(0, w.length).filter(k -> w[i][k] != 0).toArray();
+        adjacency[j] = IntStream.range(0, w.length).filter(k -> w[j][k] != 0).toArray();
+    }
+
+
+    public static void main(String[] args) throws InterruptedException {
+        File directory = new File("data" + File.separator + "cut");
+        File[] files = directory.listFiles();
+        var baseMap = new HashMap<String, Double>();
+        for (int i = 0; i < Objects.requireNonNull(files).length; ++i) {
+            File file = files[i];
+            String cutName = file.getName().strip().split("\\.")[0];
+            String[] split = cutName.split("_");
+            String sourData = split[1] + "_" + split[2] + "_" + split[3];
+            Edge[] edges = IO.loadEdges(sourData);
+            G g = new G(edges);
+            Exp exp = new Exp(g, 20);
+            var base = baseMap.getOrDefault(sourData, exp.expectedValue());
+            baseMap.put(sourData, base);
+            var df = new DecimalFormat("0.00%");
+            var E = IO.loadCuts(cutName);
+            double slice = E.length / 20.0;
+            for (int j = 1; j <= 20; j++) {
+                int start = (int) (slice * (j - 1));
+                int end = (int) (slice * j);
+                for (int idx = start; idx < end; idx++) {
+                    exp.delEdge(E[idx]);
+                }
+            }
+            double cur = exp.expectedValue();
+            double number = (base - cur) / base;
+            System.out.println(cutName + "\t" + df.format(number));
+        }
+    }
+
+}
+
+
