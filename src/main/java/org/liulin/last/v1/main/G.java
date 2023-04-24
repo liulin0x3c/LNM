@@ -147,29 +147,29 @@ public class G {
 //        runWBET("FB_0_10");
 //        runWBET("FB_0_100");
 //        runBTWN("CA_0_100");
-//        var filename = "CA_0_100";
-//        G.runMY(filename);
+        var filename = "EN_0_100";
+        G.runMY(filename);
 //        runRNDM(filename);
 //        runHWGT(filename);
 //        runBTWN(filename);
 //        runWBET(filename);
-        File directory = new File("data" + File.separator + "edge");
-        File[] files = directory.listFiles();
-        try (ExecutorService es = Executors.newFixedThreadPool(32)) {
-            for (int i = 0; i < Objects.requireNonNull(files).length; ++i) {
-                File file = files[i];
-                String filename = file.getName().strip().split("\\.")[0];
-                es.submit(() -> G.runMY(filename));
-//                es.submit(() -> runRNDM(filename));
-//                es.submit(() -> runHWGT(filename));
-//                es.submit(() -> runBTWN(filename));
-//                es.submit(() -> runWBET(filename));
-            }
-            es.shutdown();
-            boolean b = es.awaitTermination(Long.MAX_VALUE, TimeUnit.DAYS);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
+//        File directory = new File("data" + File.separator + "edge");
+//        File[] files = directory.listFiles();
+//        try (ExecutorService es = Executors.newFixedThreadPool(32)) {
+//            for (int i = 0; i < Objects.requireNonNull(files).length; ++i) {
+//                File file = files[i];
+//                String filename = file.getName().strip().split("\\.")[0];
+//                es.submit(() -> G.runMY(filename));
+////                es.submit(() -> runRNDM(filename));
+////                es.submit(() -> runHWGT(filename));
+////                es.submit(() -> runBTWN(filename));
+////                es.submit(() -> runWBET(filename));
+//            }
+//            es.shutdown();
+//            boolean b = es.awaitTermination(Long.MAX_VALUE, TimeUnit.DAYS);
+//        } catch (InterruptedException e) {
+//            throw new RuntimeException(e);
+//        }
 
 
 //        File directory = new File("data" + File.separator + "cut");

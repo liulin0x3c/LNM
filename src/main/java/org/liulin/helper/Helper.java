@@ -48,16 +48,14 @@ public class Helper {
 
 
     public static double[] calculateCrit(double[][] params) {
-//        double[][] normalized = normalize(params);
-        double[][] normalized = params;
+        double[][] normalized = normalize(params);
         double[] H = calculateH(normalized);
         double[] alpha = calculateAlpha(H);
         var crit = new double[params[0].length];
         for (int i = 0; i < crit.length; i++) {
-//            for (int j = 0; j < alpha.length; j++) {
-//                crit[i] += alpha[j] * normalized[j][i];
-//            }
-            crit[i] += Math.exp(normalized[0][i]);
+            for (int j = 0; j < alpha.length; j++) {
+                crit[i] += alpha[j] * normalized[j][i];
+            }
         }
         return crit;
     }

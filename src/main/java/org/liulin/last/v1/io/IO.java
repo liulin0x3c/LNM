@@ -107,8 +107,8 @@ public class IO {
 //
 //        pp("EN", 1, "EN_0_100");
 //        pp("EN", 0.1, "EN_0_10");
-        pp("CA", 1, "CA_0_100");
-        pp("CA", 0.1, "CA_0_10");
+//        pp("CA", 1, "CA_0_100");
+//        pp("CA", 0.1, "CA_0_10");
 //        CA-GrQc
 
 //        String[] lines;
@@ -165,7 +165,9 @@ public class IO {
 //            }
 //
 //        }
-
-
+//        String fileName = "EN_0_10";
+//        var E = loadCuts(fileName.split("_")[0]);
+//        Edge[] array = Arrays.stream(E).filter(a -> a.dest < 4096 && a.sour < 4096).toArray(Edge[]::new);
+//        recordEdges(fileName, array);
     }
 }
