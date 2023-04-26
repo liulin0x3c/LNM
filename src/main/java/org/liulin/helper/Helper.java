@@ -51,6 +51,7 @@ public class Helper {
         double[][] normalized = normalize(params);
         double[] H = calculateH(normalized);
         double[] alpha = calculateAlpha(H);
+//        var alpha = new double[]{0.99, 0.01};
         var crit = new double[params[0].length];
         for (int i = 0; i < crit.length; i++) {
             for (int j = 0; j < alpha.length; j++) {

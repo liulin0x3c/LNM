@@ -1,6 +1,8 @@
 package org.liulin.last.v1.io;
 
 import org.liulin.last.v1.Edge;
+import org.liulin.last.v1.exp.Exp;
+import org.liulin.last.v1.main.G;
 
 import java.io.File;
 import java.io.IOException;
@@ -9,8 +11,14 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
+import java.text.DecimalFormat;
 import java.util.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
+
+import static org.liulin.Main.*;
 
 public class IO {
     public synchronized static void recordEdges(String fileName, Edge[] edges) {
@@ -102,6 +110,49 @@ public class IO {
     }
 
     public static void main(String[] args) {
+        runBTWN("FB_0_100");
+//        String cutName = "BTWN_FB_0_100";
+//        String[] split = cutName.split("_");
+//        String sourData = split[1] + "_" + split[2] + "_" + split[3];
+//        Edge[] edges = IO.loadEdges(sourData);
+//        G g = new G(edges);
+//        Exp exp = new Exp(g, 20);
+//        var base = exp.expectedValue();
+//        var df = new DecimalFormat("0.00%");
+//        var E = IO.loadCuts(cutName);
+//        double slice = E.length / 20.0;
+//        for (int j = 1; j <= 20; j++) {
+//            int start = (int) (slice * (j - 1));
+//            int end = (int) (slice * j);
+//            for (int idx = start; idx < end; idx++) {
+//                exp.delEdge(E[idx]);
+//            }
+//
+//        }
+//        double cur = exp.expectedValue();
+//        double number = (base - cur) / base;
+//        System.out.println(cutName + "\t" + df.format(number));
+//    }
+
+
+
+//        runBTWN("FB_0_10");
+//        File directory = new File("data" + File.separator + "edge");
+//        File[] files = directory.listFiles();
+//        try (ExecutorService es = Executors.newFixedThreadPool(32)) {
+//            for (int i = 0; i < Objects.requireNonNull(files).length; ++i) {
+//                File file = files[i];
+//                String filename = file.getName().strip().split("\\.")[0];
+//                es.submit(() -> G.runMY(filename));
+//                es.submit(() -> runRNDM(filename));
+//                es.submit(() -> runHWGT(filename));
+//            }
+////
+//            es.shutdown();
+//            boolean b = es.awaitTermination(Long.MAX_VALUE, TimeUnit.DAYS);
+//        } catch (InterruptedException e) {
+//            throw new RuntimeException(e);
+//        }
 //        pp("FB", 0.1, "FB_0_10");
 //        pp("FB", 1, "FB_0_100");
 //
@@ -167,7 +218,25 @@ public class IO {
 //        }
 //        String fileName = "EN_0_10";
 //        var E = loadCuts(fileName.split("_")[0]);
-//        Edge[] array = Arrays.stream(E).filter(a -> a.dest < 4096 && a.sour < 4096).toArray(Edge[]::new);
+//        Set<String> set = new HashSet<>();
+//        Edge[] array = Arrays.stream(E).filter((e) -> {
+//            int i = e.sour;
+//            int j = e.dest;
+//            if (i > j) {
+//                int t = i;
+//                i = j;
+//                j = t;
+//            }
+//            var str = i + "\t" + j;
+//            if (!set.contains(str)) {
+//                set.add(str);
+//                return true;
+//            } else {
+//                return false;
+//            }
+//        }).toArray(Edge[]::new);
 //        recordEdges(fileName, array);
+
     }
+
 }

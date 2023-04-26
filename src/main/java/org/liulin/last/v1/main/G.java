@@ -111,7 +111,7 @@ public class G {
             int times = (int) (0.2 * edges.length);
             Edge[] delEdges = new Edge[times];
             for (int t = 0; t < times; t++) {
-                if (t % 10 == 0) System.out.print(t + "/" + times + "\r");
+                if (t % 10 == 0) System.out.println(t + "/" + times);
 
                 IcCache icCache = (IcCache) g.caches.get(IcCache.class.getName());
                 var A = new double[2][g.E.length];
@@ -142,17 +142,7 @@ public class G {
     }
 
     public static void main(String[] args) {
-//        runWBET("CA_0_100");
-//        runWBET("CA_0_10");
-//        runWBET("FB_0_10");
-//        runWBET("FB_0_100");
-//        runBTWN("CA_0_100");
-        var filename = "EN_0_100";
-        G.runMY(filename);
-//        runRNDM(filename);
-//        runHWGT(filename);
-//        runBTWN(filename);
-//        runWBET(filename);
+
 //        File directory = new File("data" + File.separator + "edge");
 //        File[] files = directory.listFiles();
 //        try (ExecutorService es = Executors.newFixedThreadPool(32)) {
@@ -160,50 +150,15 @@ public class G {
 //                File file = files[i];
 //                String filename = file.getName().strip().split("\\.")[0];
 //                es.submit(() -> G.runMY(filename));
-////                es.submit(() -> runRNDM(filename));
-////                es.submit(() -> runHWGT(filename));
-////                es.submit(() -> runBTWN(filename));
-////                es.submit(() -> runWBET(filename));
+//                es.submit(() -> runRNDM(filename));
+//                es.submit(() -> runHWGT(filename));
+//                es.submit(()-> runHD(filename));
 //            }
 //            es.shutdown();
 //            boolean b = es.awaitTermination(Long.MAX_VALUE, TimeUnit.DAYS);
 //        } catch (InterruptedException e) {
 //            throw new RuntimeException(e);
 //        }
-
-
-//        File directory = new File("data" + File.separator + "cut");
-//        File[] files = directory.listFiles();
-//        try (ExecutorService es = Executors.newFixedThreadPool(32)) {
-//            for (int i = 0; i < Objects.requireNonNull(files).length; ++i) {
-//                File file = files[i];
-//                String cut = file.getName().strip().split("\\.")[0];
-//                String[] split = cut.split("_");
-//                String sourData = split[1] + "_" + split[2] + "_" + split[3];
-//                Edge[] edges = IO.loadEdges(sourData);
-//                G g = new G(edges);
-//                Exp exp = new Exp(g, 20);
-//                double base = exp.expectedValue();
-//                var df = new DecimalFormat("0.00%");
-//                var E = IO.loadCuts("RNDM_FB_0_100");
-//                double slice = E.length / 20.0;
-//                for (int j = 1; j <= 20; j++) {
-//                    int start = (int) (slice * (j - 1));
-//                    int end = (int) (slice * j);
-//                    for (int idx = start; idx < end; idx++) {
-//                        exp.delEdge(E[idx]);
-//                    }
-//                }
-//                double cur = exp.expectedValue();
-//                double number = (base - cur) / base;
-//                System.out.println(df.format(number));
-//            }
-//            es.shutdown();
-//            boolean b = es.awaitTermination(Long.MAX_VALUE, TimeUnit.DAYS);
-//        } catch (InterruptedException e) {
-//            throw new RuntimeException(e);
-//        }
-
 
     }
 

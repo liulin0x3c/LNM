@@ -5,10 +5,18 @@ import org.liulin.last.v1.io.IO;
 import org.liulin.last.v1.main.G;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.text.DecimalFormat;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.stream.IntStream;
+
+import static org.liulin.Main.*;
 
 public class Exp {
     private final int[][] adjacency;
@@ -36,7 +44,7 @@ public class Exp {
             int numSimulations = 10_0000;// 模拟次数
             CountDownLatch countDownLatch = new CountDownLatch(numSimulations);
             Object lock = new Object();
-            int nThreads = 15;
+            int nThreads = 24;
             long[] sum = new long[nThreads];
             ExecutorService es = Executors.newFixedThreadPool(nThreads);
             for (int i = 0; i < nThreads; i++) {
@@ -113,35 +121,90 @@ public class Exp {
 
 
     public static void main(String[] args) throws InterruptedException {
+//        {
+//            Edge[] edges = IO.loadEdges("FB_0_10");
+//            for (Edge e : edges) {
+//                e.weight += 0.5;
+//            }
+//            IO.recordEdges("FB_50_60", edges);
+//        }
+//        {
+//            Edge[] edges = IO.loadEdges("EN_0_10");
+//            for (Edge e : edges) {
+//                e.weight += 0.5;
+//            }
+//            IO.recordEdges("EN_50_60", edges);
+//        }
+//        {
+//            File directory = new File("data" + File.separator + "edge");
+//            File[] files = directory.listFiles();
+//            try (ExecutorService es = Executors.newFixedThreadPool(32)) {
+//                for (int i = 0; i < Objects.requireNonNull(files).length; ++i) {
+//                    File file = files[i];
+//                    String filename = file.getName().strip().split("\\.")[0];
+//                    es.submit(() -> G.runMY(filename));
+//                    es.submit(() -> runRNDM(filename));
+//                    es.submit(() -> runHWGT(filename));
+//                    es.submit(() -> runHD(filename));
+//                }
+//                es.shutdown();
+//                boolean b = es.awaitTermination(Long.MAX_VALUE, TimeUnit.DAYS);
+//            } catch (InterruptedException e) {
+//                throw new RuntimeException(e);
+//            }
+//        }
+
+        HashMap<String, List<Double>> data = new HashMap<>();
         File directory = new File("data" + File.separator + "cut");
         File[] files = directory.listFiles();
-        var baseMap = new HashMap<String, Double>();
+        int percent = 1;
+        int pointNum = 20;
         for (int i = 0; i < Objects.requireNonNull(files).length; ++i) {
             File file = files[i];
             String cutName = file.getName().strip().split("\\.")[0];
             String[] split = cutName.split("_");
             String sourData = split[1] + "_" + split[2] + "_" + split[3];
+            var methodFileName = sourData + "_" + percent + "_" + split[0];
+            data.put(methodFileName, new ArrayList<>());
             Edge[] edges = IO.loadEdges(sourData);
             G g = new G(edges);
-            Exp exp = new Exp(g, 20);
-            var base = baseMap.getOrDefault(sourData, exp.expectedValue());
-            baseMap.put(sourData, base);
+            Exp exp = new Exp(g, percent);
+            var base = exp.expectedValue();
             var df = new DecimalFormat("0.00%");
             var E = IO.loadCuts(cutName);
-            double slice = E.length / 20.0;
-            for (int j = 1; j <= 20; j++) {
+            double slice = E.length * 1.0 / pointNum;
+            for (int j = 1; j <= pointNum; j++) {
                 int start = (int) (slice * (j - 1));
                 int end = (int) (slice * j);
                 for (int idx = start; idx < end; idx++) {
                     exp.delEdge(E[idx]);
                 }
+                double cur = exp.expectedValue();
+                double number = (base - cur) / base;
+                data.get(methodFileName).add(number);
+                System.out.println(methodFileName + "\t" + df.format(number));
             }
-            double cur = exp.expectedValue();
-            double number = (base - cur) / base;
-            System.out.println(cutName + "\t" + df.format(number));
+        }
+        Set<Map.Entry<String, List<Double>>> entries = data.entrySet();
+        StringBuilder log = new StringBuilder();
+        for (Map.Entry<String, List<Double>> entry : entries) {
+            String name = entry.getKey();
+            List<Double> list = entry.getValue();
+            StringBuilder line = new StringBuilder(name);
+            for (Double aDouble : list) {
+                line.append("\t");
+                line.append(aDouble);
+            }
+            log.append(line).append("\n");
+        }
+
+        Path path = Paths.get("data" + File.separator + "final" + File.separator + "result" + "_" + percent + "_" + pointNum + ".txt");
+        try {
+            Files.writeString(path, log, StandardCharsets.UTF_8, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
     }
-
 }
 
 
