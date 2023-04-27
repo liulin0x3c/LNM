@@ -101,6 +101,8 @@ public class G {
         }
     }
 
+    static double v = 0.1;
+
     public static void runMY(String fileName) {
         try {
             var edges = IO.loadEdges(fileName);
@@ -108,7 +110,7 @@ public class G {
             g.caches.put(EffCache.class.getName(), new EffCache(g));
             g.caches.put(IcCache.class.getName(), new IcCache(g));
             edges = g.E;
-            int times = (int) (0.2 * edges.length);
+            int times = (int) (v * edges.length);
             Edge[] delEdges = new Edge[times];
             for (int t = 0; t < times; t++) {
                 if (t % 10 == 0) System.out.println(t + "/" + times);

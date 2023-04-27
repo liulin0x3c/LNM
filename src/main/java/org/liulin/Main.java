@@ -55,13 +55,13 @@ public class Main {
             return null;
         }
     }
-
+    static double v = 0.1;
     public static void runRNDM(String fileName) {
         try {
             Edge[] edges = IO.loadEdges(fileName);
             var graph = creatGraph(edges);
             int n = graph.edgeSet().size();
-            int k = (int) (0.2 * n);
+            int k = (int) (v * n);
             var delArr = new DefaultWeightedEdge[k];
             var array = graph.edgeSet().toArray(new DefaultWeightedEdge[0]);
             var randomIndices = ThreadLocalRandom.current().ints(0, n).distinct().limit(k).boxed().collect(Collectors.toCollection(ArrayList::new)); // 不重复随机数数组
@@ -82,7 +82,7 @@ public class Main {
 
             Set<DefaultWeightedEdge> edges = graph.edgeSet();
             int n = edges.size();
-            int k = (int) (0.2 * n);
+            int k = (int) (v * n);
             DefaultWeightedEdge[] delArr = edges.stream().sorted(Comparator.comparingDouble(edge -> -graph.getEdgeWeight(edge))).limit(k).toArray(DefaultWeightedEdge[]::new);
             IO.recordCuts("HWGT_" + fileName, FORMAT(delArr));
         } catch (Exception e) {
@@ -90,58 +90,58 @@ public class Main {
         }
     }
 
-    public static void runBTWN(String fileName) {
-        try {
-            var graph = creatGraph(IO.loadEdges(fileName));
-
-            var newGraph = new SimpleGraph<Integer, DefaultEdge>(DefaultEdge.class);
-            Graphs.addAllVertices(newGraph, graph.vertexSet());
-            graph.edgeSet().forEach(edge -> newGraph.addEdge(graph.getEdgeSource(edge), graph.getEdgeTarget(edge)));
-
-            int times = (int) (0.2 * newGraph.edgeSet().size());
-            int i = 0;
-            var list = new ArrayList<>(times);
-            while (i < times) {
-                int len = 100;
-                if (i + 100 >= times) {
-                    len = times - i;
-                }
-                Map<DefaultEdge, Double> defaultEdgeDoubleMap = calculateEdgeBetweenness(newGraph);
-                var topKEdges = defaultEdgeDoubleMap.entrySet().stream().sorted(Map.Entry.comparingByValue(Comparator.reverseOrder())).limit(len).map(Map.Entry::getKey).toList();
-                list.add(topKEdges);
-                System.out.println();
-                i += 100;
-                System.out.println(i + "/" + times);
-            }
-
-            IO.recordCuts("BTWN1_" + fileName, FORMAT(list.toArray(DefaultEdge[]::new)));
-        } catch (Exception e) {
-            System.out.println("ERR");
-        }
-
-    }
-
-    public static void runWBET(String fileName) {
-        try {
-            var graph = creatGraph(IO.loadEdges(fileName));
-
-            var newGraph = new SimpleWeightedGraph<Integer, DefaultWeightedEdge>(DefaultWeightedEdge.class);
-            Graphs.addGraph(newGraph, graph);
-            graph = null;
-//        update w = 1 - w 这样w就能代表距离了，直接用轮子
-            newGraph.edgeSet().forEach(edge -> newGraph.setEdgeWeight(edge, 1 - newGraph.getEdgeWeight(edge)));
-            int times = (int) (0.2 * newGraph.edgeSet().size());
-            var delArr = new DefaultWeightedEdge[times];
-            for (int i = 0; i < times; i++) {
-                System.out.println(i + "/" + times);
-                DefaultWeightedEdge maxScoreEdge = findMaxScoreEdgeAndDelete(newGraph);
-                delArr[i] = maxScoreEdge;
-            }
-            IO.recordCuts("WEBT_" + fileName, FORMAT(delArr));
-        } catch (Exception e) {
-            System.out.println("ERR");
-        }
-    }
+//    public static void runBTWN(String fileName) {
+//        try {
+//            var graph = creatGraph(IO.loadEdges(fileName));
+//
+//            var newGraph = new SimpleGraph<Integer, DefaultEdge>(DefaultEdge.class);
+//            Graphs.addAllVertices(newGraph, graph.vertexSet());
+//            graph.edgeSet().forEach(edge -> newGraph.addEdge(graph.getEdgeSource(edge), graph.getEdgeTarget(edge)));
+//
+//            int times = (int) (v * newGraph.edgeSet().size());
+//            int i = 0;
+//            var list = new ArrayList<>(times);
+//            while (i < times) {
+//                int len = 100;
+//                if (i + 100 >= times) {
+//                    len = times - i;
+//                }
+//                Map<DefaultEdge, Double> defaultEdgeDoubleMap = calculateEdgeBetweenness(newGraph);
+//                var topKEdges = defaultEdgeDoubleMap.entrySet().stream().sorted(Map.Entry.comparingByValue(Comparator.reverseOrder())).limit(len).map(Map.Entry::getKey).toList();
+//                list.add(topKEdges);
+//                System.out.println();
+//                i += 100;
+//                System.out.println(i + "/" + times);
+//            }
+//
+//            IO.recordCuts("BTWN1_" + fileName, FORMAT(list.toArray(DefaultEdge[]::new)));
+//        } catch (Exception e) {
+//            System.out.println("ERR");
+//        }
+//
+//    }
+//
+//    public static void runWBET(String fileName) {
+//        try {
+//            var graph = creatGraph(IO.loadEdges(fileName));
+//
+//            var newGraph = new SimpleWeightedGraph<Integer, DefaultWeightedEdge>(DefaultWeightedEdge.class);
+//            Graphs.addGraph(newGraph, graph);
+//            graph = null;
+////        update w = 1 - w 这样w就能代表距离了，直接用轮子
+//            newGraph.edgeSet().forEach(edge -> newGraph.setEdgeWeight(edge, 1 - newGraph.getEdgeWeight(edge)));
+//            int times = (int) (v * newGraph.edgeSet().size());
+//            var delArr = new DefaultWeightedEdge[times];
+//            for (int i = 0; i < times; i++) {
+//                System.out.println(i + "/" + times);
+//                DefaultWeightedEdge maxScoreEdge = findMaxScoreEdgeAndDelete(newGraph);
+//                delArr[i] = maxScoreEdge;
+//            }
+//            IO.recordCuts("WEBT_" + fileName, FORMAT(delArr));
+//        } catch (Exception e) {
+//            System.out.println("ERR");
+//        }
+//    }
 
     public static void runHD(String fileName) {
         try {
@@ -149,7 +149,7 @@ public class Main {
             var newGraph = new SimpleWeightedGraph<Integer, DefaultWeightedEdge>(DefaultWeightedEdge.class);
             Graphs.addGraph(newGraph, graph);
             graph = null;
-            int times = (int) (0.2 * newGraph.edgeSet().size());
+            int times = (int) (v * newGraph.edgeSet().size());
             var delArr = new DefaultWeightedEdge[times];
             HashMap<Integer, Double> degreeMap = new HashMap<>(newGraph.vertexSet().size());
             for (var v : newGraph.vertexSet()) {
@@ -181,7 +181,6 @@ public class Main {
                         break;
                     }
                 }
-
             }
             IO.recordCuts("HD_" + fileName, FORMAT(delArr));
         } catch (Exception e) {
@@ -202,21 +201,25 @@ public class Main {
     }
 
     public static void main(String[] args) {
-        File directory = new File("data" + File.separator + "edge");
-        File[] files = directory.listFiles();
-        try (ExecutorService es = Executors.newFixedThreadPool(14)) {
-            for (int i = 0; i < Objects.requireNonNull(files).length; ++i) {
-                File file = files[i];
-                String filename = file.getName().strip().split("\\.")[0];
-//                es.submit(() -> G.runMY(filename));
-//                es.submit(() -> runRNDM(filename));
-//                es.submit(() -> runHWGT(filename));
-                es.submit(() -> runHD(filename));
+        {
+            File directory = new File("data" + File.separator + "edge");
+            File[] files = directory.listFiles();
+            try (ExecutorService es = Executors.newFixedThreadPool(16)) {
+                for (int i = 0; i < Objects.requireNonNull(files).length; ++i) {
+                    File file = files[i];
+                    String filename = file.getName().strip().split("\\.")[0];
+                    if (filename == "FB_0_10" || filename == "FB_0_100" || filename == "FB_50_60") continue;
+                    if (filename == "EN_0_10" || filename == "EN_0_100" || filename == "EN_50_60") continue;
+                    es.submit(() -> G.runMY(filename));
+                    es.submit(() -> runRNDM(filename));
+                    es.submit(() -> runHWGT(filename));
+                    es.submit(() -> runHD(filename));
+                }
+                es.shutdown();
+                boolean b = es.awaitTermination(Long.MAX_VALUE, TimeUnit.DAYS);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
             }
-            es.shutdown();
-            boolean b = es.awaitTermination(Long.MAX_VALUE, TimeUnit.DAYS);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
         }
     }
 
