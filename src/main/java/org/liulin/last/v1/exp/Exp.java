@@ -164,8 +164,7 @@ public class Exp {
     public static void fun(int percent, int pointNum) {
         File directory = new File("data" + File.separator + "cut");
         File[] files = directory.listFiles();
-
-        ConcurrentHashMap<String, List<Double>> data = new ConcurrentHashMap<>();
+        StringBuilder log = new StringBuilder();
         ExecutorService es = Executors.newFixedThreadPool(32);
         for (var file : files) {
             es.submit(() -> {
@@ -173,7 +172,7 @@ public class Exp {
                 String[] split = cutName.split("_");
                 String sourData = split[1] + "_" + split[2] + "_" + split[3];
                 var methodFileName = sourData + "_" + percent + "_" + split[0];
-                data.put(methodFileName, new ArrayList<>());
+                ArrayList<Double> doubles = new ArrayList<>();
                 int maxNode;
                 Edge[] edges = IO.loadEdges(sourData);
                 maxNode = Integer.MIN_VALUE;
@@ -217,9 +216,15 @@ public class Exp {
                     }
                     double cur = total / 10.0;
                     double number = (base - cur) / base;
-                    data.get(methodFileName).add(number);
+                    doubles.add(number);
                     System.out.println(methodFileName + "_" + j + "\t" + df.format(number));
                 }
+                StringBuilder line = new StringBuilder(methodFileName);
+                for (Double aDouble : doubles) {
+                    line.append("\t");
+                    line.append(aDouble);
+                }
+                log.append(line).append("\n");
             });
         }
         es.shutdown();
@@ -227,20 +232,6 @@ public class Exp {
             boolean b = es.awaitTermination(Long.MAX_VALUE, TimeUnit.DAYS);
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
-        }
-
-
-        Set<Map.Entry<String, List<Double>>> entries = data.entrySet();
-        StringBuilder log = new StringBuilder();
-        for (Map.Entry<String, List<Double>> entry : entries) {
-            String name = entry.getKey();
-            List<Double> list = entry.getValue();
-            StringBuilder line = new StringBuilder(name);
-            for (Double aDouble : list) {
-                line.append("\t");
-                line.append(aDouble);
-            }
-            log.append(line).append("\n");
         }
 
         Path path = Paths.get("data" + File.separator + "final" + File.separator + "result" + "_" + percent + "_" + pointNum + ".txt");
@@ -254,6 +245,7 @@ public class Exp {
 
 
     public static void main(String[] args) throws InterruptedException {
+        G.runMY("FB_50_60");
 //        Edge[] edges = IO.loadEdges("EN_0_10");
 //        {
 //            int low = 10;
@@ -283,12 +275,12 @@ public class Exp {
 //                for (int i = 0; i < Objects.requireNonNull(files).length; ++i) {
 //                    File file = files[i];
 //                    String filename = file.getName().strip().split("\\.")[0];
-//                    if (filename == "FB_0_10" || filename == "FB_0_100" || filename == "FB_50_60") continue;
-//                    if (filename == "EN_0_10" || filename == "EN_0_100" || filename == "EN_50_60") continue;
+////                    if (filename == "FB_0_10" || filename == "FB_0_100" || filename == "FB_50_60") continue;
+////                    if (filename == "EN_0_10" || filename == "EN_0_100" || filename == "EN_50_60") continue;
 //                    es.submit(() -> G.runMY(filename));
-//                    es.submit(() -> runRNDM(filename));
-//                    es.submit(() -> runHWGT(filename));
-//                    es.submit(() -> runHD(filename));
+////                    es.submit(() -> runRNDM(filename));
+////                    es.submit(() -> runHWGT(filename));
+////                    es.submit(() -> runHD(filename));
 //                }
 //                es.shutdown();
 //                boolean b = es.awaitTermination(Long.MAX_VALUE, TimeUnit.DAYS);
