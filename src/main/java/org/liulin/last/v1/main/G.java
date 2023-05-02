@@ -113,7 +113,7 @@ public class G {
             int times = (int) (v * edges.length);
             Edge[] delEdges = new Edge[times];
             for (int t = 0; t < times; t++) {
-                if (t % 10 == 0) System.out.println(t + "/" + times);
+                if (t % 100 == 0) System.out.println(fileName+"__" + t + "/" + times);
 
                 IcCache icCache = (IcCache) g.caches.get(IcCache.class.getName());
                 var A = new double[2][g.E.length];

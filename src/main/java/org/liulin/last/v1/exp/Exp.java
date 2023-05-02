@@ -245,33 +245,33 @@ public class Exp {
 
 
     public static void main(String[] args) throws InterruptedException {
-        G.runMY("FB_50_60");
-//        Edge[] edges = IO.loadEdges("EN_0_10");
+//        G.runMY("FB_50_60");
+//        Edge[] edges = IO.loadEdges("FB_0_10");
+//        var random = new Random();
 //        {
 //            int low = 10;
 //            while (low <= 90) {
-//
 //                for (Edge e : edges) {
-//                    e.weight = Math.random() / 0.1 + (low / 100.0);
+//                    e.weight = random.nextDouble() * 0.1 + (low / 100.0);
 //                }
-//                IO.recordEdges("EN_" + low + "_" + (low + 10), edges);
+//                IO.recordEdges("FB_" + low + "_" + (low + 10), edges);
 //                low = low + 10;
 //            }
 //        }
 //        System.out.println(111);
 
-        {
-            int pointNum = 10;
-            fun(1, pointNum);
-            fun(5, pointNum);
-            fun(10, pointNum);
-        }
+//        {
+//            int pointNum = 10;
+//            fun(1, pointNum);
+//            fun(5, pointNum);
+//            fun(10, pointNum);
+//        }
 
 
 //        {
 //            File directory = new File("data" + File.separator + "edge");
 //            File[] files = directory.listFiles();
-//            try (ExecutorService es = Executors.newFixedThreadPool(16)) {
+//            try (ExecutorService es = Executors.newFixedThreadPool(32)) {
 //                for (int i = 0; i < Objects.requireNonNull(files).length; ++i) {
 //                    File file = files[i];
 //                    String filename = file.getName().strip().split("\\.")[0];
@@ -288,13 +288,13 @@ public class Exp {
 //                throw new RuntimeException(e);
 //            }
 //        }
-////
-//        {
-//            int pointNum = 1;
+//
+        {
+            int pointNum = 1;
 //            fun(1, pointNum);
 //            fun(5, pointNum);
-//            fun(10, pointNum);
-//        }
+            fun(10, pointNum);
+        }
 
     }
 }
