@@ -16,6 +16,8 @@ import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+import static org.liulin.last.v1.exp.Exp.fun;
+
 public class Main {
 
     public static SimpleWeightedGraph<Integer, DefaultWeightedEdge> creatGraph(Edge[] E) {
@@ -208,8 +210,6 @@ public class Main {
                 for (int i = 0; i < Objects.requireNonNull(files).length; ++i) {
                     File file = files[i];
                     String filename = file.getName().strip().split("\\.")[0];
-                    if (filename == "FB_0_10" || filename == "FB_0_100" || filename == "FB_50_60") continue;
-                    if (filename == "EN_0_10" || filename == "EN_0_100" || filename == "EN_50_60") continue;
                     es.submit(() -> G.runMY(filename));
                     es.submit(() -> runRNDM(filename));
                     es.submit(() -> runHWGT(filename));
@@ -220,6 +220,12 @@ public class Main {
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }
+        }
+        {
+            int pointNum = 1;
+            fun(1, pointNum);
+            fun(5, pointNum);
+            fun(10, pointNum);
         }
     }
 
